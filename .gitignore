@@ -3,8 +3,17 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# macOS
+.DS_Store
+
+# ignore data
+
+
 # C extensions
 *.so
+
+# vscode
+.vscode
 
 # Distribution / packaging
 .Python
