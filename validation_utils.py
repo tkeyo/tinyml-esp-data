@@ -97,6 +97,7 @@ def run_validation(model_setup, dataset_path, dataset, is_plot=False, is_save_re
         fig.tight_layout()
 
     for setup in model_setup:
+        # parse settings
         MODEL = setup[0]
         FREQ = setup[1]
         STEP = (1000 / FREQ)
@@ -112,9 +113,7 @@ def run_validation(model_setup, dataset_path, dataset, is_plot=False, is_save_re
         df_downsampled = downsample_df(df_val, STEP) # downsample dataset
         df_inference = transform_data_for_inference(df_downsampled) # converts dataset to inference format
 
-        # Plot signals
-        if is_plot:
-            ax[ROW][COL].plot(df_downsampled)
+
 
             # Create Legend
             blue_patch = mpatches.Patch(color='blue', label='X Movement')
@@ -125,15 +124,27 @@ def run_validation(model_setup, dataset_path, dataset, is_plot=False, is_save_re
         # generate a list of steps    
         inference_step = list(np.arange(0, df_val.index[-1] + 1 - 1010, step=STEP))
 
+        results_for_plot = []
+        
         for st in inference_step:
             res = np.argmax(run_inference(df_inference, MODEL, st, STEP))
             inf_results = pd.concat([inf_results, pd.DataFrame([{'start':st,'end':st+1000,'result':res}])], axis=0)
 
             if res in [1,2,3]:
                 color = line_color(res)
-                if is_plot:
-                    ax[ROW][COL].axvline(x=st+500, ymin=0, ymax=0.4, color=color, alpha=0.4)
-
+                results_for_plot.append((color, st))
+                    
+                    
+        # Plot signals
+        if is_plot:
+            ax[ROW][COL].plot(df_downsampled)
+            
+            for r in results_for_plot:
+                color_plot = r[0]
+                st_plot = r[1]   
+                
+                ax[ROW][COL].axvline(x=st_plot+500, ymin=0, ymax=0.4, color=color_plot, alpha=0.4)     
+    
         # get error rate
         move = get_move_from_path(dataset_path)
         
