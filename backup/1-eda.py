@@ -84,6 +84,8 @@ df_x = extract_signal(df_x)
 df_y = extract_signal(df_y)
 df_circle = extract_signal(df_circle)
 
+
+# %%
 df_x = extract_time_ms(df_x)
 df_y = extract_time_ms(df_y)
 df_circle = extract_time_ms(df_circle)
@@ -134,8 +136,6 @@ g = sns.pairplot(
     height=5,
     markers='+'
     );
-
-# add lims
 
 
 # %%
@@ -255,13 +255,5 @@ plot_signals(df_x_shapes, df_y_shapes, df_circle_shapes, 'gyro_y', 'Y axis', 'an
 
 # %%
 plot_signals(df_x_shapes, df_y_shapes, df_circle_shapes, 'gyro_z', 'Z axis', 'angular velocity')
-
-
-# %%
-
-
-
-# %%
-
 
 
