@@ -102,7 +102,6 @@ def run_inference(df, model, start, step):
     '''Runs inference.'''
     regex_filter = get_filter_string(start=start, step=step)
     data = list(df.filter(regex=f'_({regex_filter})$').loc[0])
-    # print(len(data))
     return model.score(data)
 
 def calculate_error(res, move_type):
