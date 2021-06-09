@@ -31,20 +31,24 @@ def melt_df(df: pd.DataFrame) -> list:
 def plot_signals(df_x, df_y, df_circle, signal, text, sensor):
     fig, ax = plt.subplots(ncols=3, sharey=True, figsize=(30,8))
 
+    # plotting all signals
     ax[0].plot(df_x[df_x['signal'] == signal].drop(['mean','signal'], axis=1), alpha=0.3);
     ax[1].plot(df_y[df_y['signal'] == signal].drop(['mean','signal'], axis=1), alpha=0.3);
     ax[2].plot(df_circle[df_circle['signal'] == signal].drop(['mean','signal'], axis=1), alpha=0.3);
 
-
+    # plotting mean of all signals
     ax[0].plot(df_x[df_x['signal'] == signal]['mean'], alpha=1, color='red', linewidth=3);
     ax[1].plot(df_y[df_y['signal'] == signal]['mean'], alpha=1, color='red', linewidth=3);
     ax[2].plot(df_circle[df_circle['signal'] == signal]['mean'], alpha=1, color='red', linewidth=3);
 
+    # set titles
     ax[0].set_title(f'{text} {sensor} of all `X` movements\n+ their mean\n')
     ax[1].set_title(f'{text} {sensor} of all `Y` movements\n+ their mean\n')
     ax[2].set_title(f'{text} {sensor} of all `circle` movements\n+ their mean\n')
     
     ax[0].set_ylabel('Acceleration [m/s^2]')
+    
+    # sets ticklabels 
     for x in range(3):
         ax[x].set_xlabel('Time [ms]')
 
@@ -53,11 +57,13 @@ def plot_signals(df_x, df_y, df_circle, signal, text, sensor):
         for label in temp:
             label.set_visible(False)
 
+    # adding heatmaps
     fig, ax = plt.subplots(ncols=3, figsize=(30,6))
     sns.heatmap(df_x[df_x['signal'] == signal].drop(['signal'], axis=1).corr(), ax=ax[0])
     sns.heatmap(df_y[df_y['signal'] == signal].drop(['signal'], axis=1).corr(), ax=ax[1])
     sns.heatmap(df_circle[df_circle['signal'] == signal].drop(['signal'], axis=1).corr(), ax=ax[2])
     
+    # set titles
     ax[0].set_title(f'Correlation matrix\n{text} {sensor} of `X` movements\n');
     ax[1].set_title(f'Correlation matrix\n{text} {sensor} of `Y` movements\n');
     ax[2].set_title(f'Correlation matrix\n{text} {sensor} of `circle` movements\n');
