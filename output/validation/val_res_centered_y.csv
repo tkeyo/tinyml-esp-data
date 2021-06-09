@@ -1,0 +1,39 @@
+model,hz,dataset,error_percentage,value_counts
+decision_tree,100,centered,8.16326530612245,"0    1725
+2      90
+1       8
+Name: result, dtype: int64"
+decision_tree,50,centered,8.333333333333332,"0    864
+2     44
+1      4
+Name: result, dtype: int64"
+decision_tree,25,centered,0.0,"0    433
+2     23
+Name: result, dtype: int64"
+decision_tree,20,centered,12.5,"0    349
+2     14
+1      2
+Name: result, dtype: int64"
+decision_tree,10,centered,11.11111111111111,"0    174
+2      8
+1      1
+Name: result, dtype: int64"
+random_forest,100,centered,17.647058823529413,"0    1738
+2      70
+1      15
+Name: result, dtype: int64"
+random_forest,50,centered,26.31578947368421,"0    855
+2     42
+1     15
+Name: result, dtype: int64"
+random_forest,25,centered,62.5,"0    440
+1     10
+2      6
+Name: result, dtype: int64"
+random_forest,20,centered,0.0,"0    349
+2     16
+Name: result, dtype: int64"
+random_forest,10,centered,33.33333333333333,"0    180
+2      2
+1      1
+Name: result, dtype: int64"
