@@ -17,21 +17,37 @@ get_ipython().run_line_magic('matplotlib', 'inline')
 
 
 # %%
-def save_model(classifier, directory, model_type, hz):
-    '''Saves model to defined folder.'''
+from sklearn import metrics
+from sklearn.model_selection import train_test_split
+
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.svm import LinearSVC
+from sklearn.linear_model import LogisticRegression
+
+
+# %%
+def save_model(classifier, stage, dataset, model_type, hz):
+    '''
+        Saves model to defined folder.
+
+        stage - baseline/optimized
+        dataset - base/centered/end/etc
+        model_types - decision_tree, random_forest, ...
+        hz - frequency
+    '''
 
     import os
     import m2cgen as m2c
     
-    BASE_PATH = f'models/{directory}/{model_type}'
+    BASE_PATH = f'models/{stage}/{dataset}/{model_type}/'
     FILE_NAME = f'{model_type}_{hz}hz.py'
 
-    if not os.path.isdir('models'):
-        os.mkdir(BASE_PATH)
+    if not os.path.exists(BASE_PATH):
+        os.makedirs(BASE_PATH)
 
     code = m2c.export_to_python(classifier)
-    
-    with open(os.join(BASE_PATH + FILE_NAME), 'w') as f:
+    with open(BASE_PATH + FILE_NAME, 'w') as f:
         f.writelines(code)
 
 
@@ -46,6 +62,7 @@ def transform_data_for_inference(df):
 
     for time in df.index:
         _df = pd.DataFrame(df.loc[time]).T
+        # _df.drop('ms',axis=1, inplace=True)
         df_list.append(_df.add_suffix(f'_{str(int(time))}').reset_index(drop=True))
 
     return pd.concat(df_list, axis=1)
@@ -71,7 +88,9 @@ def line_color(inf_result):
     }
     return colors[inf_result]
 
-def downsample_dataset(df, freq):
+
+def downsample_df(df, freq):
+    '''Downsamples dataset.'''
 
     def get_period(frequency):
         return int(1000 / frequency)
@@ -118,170 +137,260 @@ def calculate_error(res, move_type):
     return (total_wrong / val_counts.sum()) * 100
 
 
-# def calculate_misclassified_percentage_x(r
-
-
 # %%
-from sklearn.tree import DecisionTreeClassifier
-from sklearn import metrics
-
-def train_decision_tree(X_train, X_test, y_train, y_test, hz, direc):
-    clf = DecisionTreeClassifier(random_state=42)
+def trainer_helper(clf, X_train, X_test, y_train, y_test):
     clf.fit(X_train, y_train)
 
     y_pred = clf.predict(X_test)
-
+    
     accuracy = metrics.accuracy_score(y_test, y_pred)
-    precision = metrics.precision_score(y_test, y_pred)
-    f1 = metrics.f1_score(y_test, y_pred)
-    recall = metrics.recall_score(y_test, y_pred)
-
-    save_model(classifier=clf, direc=direc, model_type='decision_tree', hz=hz)
+    f1 = metrics.f1_score(y_test, y_pred, average='macro')
+    precision = metrics.precision_score(y_test, y_pred, average='macro')
+    recall = metrics.recall_score(y_test, y_pred, average='macro')
 
     return accuracy, f1, precision, recall, clf
 
 
 # %%
-from sklearn.ensemble import RandomForestClassifier
-from sklearn import metrics
+def get_df_base(df):
+    return df[(df['shift'] == 0)]
 
-def train_random_forest(X_train, X_test, y_train, y_test, hz, direc):
-    clf = RandomForestClassifier(random_state=42, n_estimators=4)
-    clf.fit(X_train, y_train)
+def get_df_center(df):
+    df = df[
+            ((df['label'] == 1) & (df['shift'] == -20))
+            | ((df['label'] == 2) & (df['shift'] == -20))
+            | ((df['label'] == 3) & (df['shift'] == 0))
+            | ((df['label'] == 0) & (df['shift'] == 0))
+        ]
+    return df
 
-    y_pred = clf.predict(X_test)
+def get_df_shift_aug(df):
+    df = df[
+            ((df['label'] == 1) & (df['shift'] <= -15))
+            | ((df['label'] == 2) & (df['shift'] <= -15))
+            | ((df['label'] == 3) & (df['shift'] == -2))
+            | ((df['label'] == 3) & (df['shift'] == -1))
+            | ((df['label'] == 3) & (df['shift'] == 0))
+            | ((df['label'] == 3) & (df['shift'] == 1))
+            | ((df['label'] == 3) & (df['shift'] == 2))
+            | ((df['label'] == 0) & (df['shift'] > 1))
+        ]
+    return df
 
-    accuracy = metrics.accuracy_score(y_test, y_pred)
-    f1 = metrics.f1_score(y_test, y_pred)
-    precision = metrics.precision_score(y_test, y_pred)
-    recall = metrics.recall_score(y_test, y_pred)
-
-    save_model(classifier=clf, direc=direc, model_type='random_forest', hz=hz)
-
-    return accuracy, f1, precision, recall, clf
-
-
-# %%
-from sklearn.svm import LinearSVC
-from sklearn import metrics
-
-def train_svc(X_train, X_test, y_train, y_test, hz, direc):
-    clf = LinearSVC(random_state=42, max_iter=1000)
-    clf.fit(X_train, y_train)
-
-    y_pred = clf.predict(X_test)
-
-    accuracy = metrics.accuracy_score(y_test, y_pred)
-    f1 = metrics.f1_score(y_test, y_pred)
-    precision = metrics.precision_score(y_test, y_pred)
-    recall = metrics.recall_score(y_test, y_pred)
-
-    save_model(classifier=clf, direc=direc, model_type='svc', hz=hz)
-
-    return accuracy, f1, precision, recall, clf
+def get_df_end(df):
+    df = df[
+            ((df['label'] == 1) & (df['shift'] == -37))
+            | ((df['label'] == 2) & (df['shift'] == -37))
+            | ((df['label'] == 3) & (df['shift'] == 0))
+            | ((df['label'] == 0) & (df['shift'] == 0))
+        ]
+    return df
 
 
 # %%
-from sklearn.linear_model import LogisticRegression
-from sklearn import metrics
+def run_training(X_train,X_test, y_train, y_test, stage, dataset, hz, collect_time=False, is_save_model=False):
+    collect_metrics = {}
 
-def train_logistic_regression(X_train, X_test, y_train, y_test, hz, direc):
-    clf = LogisticRegression(random_state=42,  max_iter=10_000)
-    clf.fit(X_train, y_train)
+    dt = DecisionTreeClassifier(random_state=42)
+    rf = RandomForestClassifier(random_state=42, n_estimators=4)
+    lsvc = LinearSVC(random_state=42, max_iter=10_000)
+    lr = LogisticRegression(random_state=42, max_iter=10_000)
 
-    y_pred = clf.predict(X_test)
+    model_setup = [
+                    (dt, 'decision_tree'),
+                    (rf,'random_forest'),
+                    (lsvc, 'svc'),
+                    (lr, 'logistic_regression')
+                ]
 
-    accuracy = metrics.accuracy_score(y_test, y_pred)
-    f1 = metrics.f1_score(y_test, y_pred)
-    precision = metrics.precision_score(y_test, y_pred)
-    recall = metrics.recall_score(y_test, y_pred)
+    for item in model_setup:
+        clf = item[0]
+        name = item[1]
 
-    save_model(classifier=clf, direc=direc, model_type='logistic_regression', hz=hz)
+        collect_metrics[name] = {}
 
-    return accuracy, f1, precision, recall, clf
+        print('\n')
+        print(f'{name} {hz} Hz')
+
+        accuracy, f1, precision, recall, model = trainer_helper(clf, X_train, X_test, y_train, y_test)
+
+        collect_metrics[name] = {
+                'accuracy':accuracy,
+                'f1':f1,
+                'precision':precision,
+                'recall':recall}
+
+        if collect_time:
+            test_data = [X_train.iloc[0]]
+            inf_time = get_ipython().run_line_magic('timeit', '-o model.predict(test_data)')
+            collect_metrics[name]['time'] = inf_time.timings
+
+        if is_save_model:
+            save_model(model, stage, dataset, name, hz)
+
+    return collect_metrics
 
 
 # %%
-collect_metrics = {}
-collect_metrics['decision_tree'] = {}
-collect_metrics['random_forest'] = {}
-collect_metrics['svc'] = {}
-collect_metrics['logistic_regression'] = {}
-
-MODELS = 'no_shift'
+res = {}
 
 for hz in [10,20,25,50,100]:
-# for hz in [100]:
-    print(f'HZ: {hz}')
-    df = pd.read_csv(f'../../data/7-data_combined_all/20210522_data_all_{hz}hz.csv').reset_index(drop=True)
-    df_train = df[(df['shift'] == 0)]
+    print(f'Training on dataset with {hz} Hz')
+    print('*' * 50)
+    print('\n')
+    df = pd.read_csv(f'data/transformed/20210529_v2_data_all_{hz}hz.csv').reset_index(drop=True)
+    
+    df_train = get_df_base(df)
     df_train = df_train.dropna(axis=0)
 
-    # print(list(df_train.columns))
 
     print('DF Shape', df_train.shape)
     X_train, X_test, y_train, y_test = train_test_split(df_train.drop(['label','shift'],axis=1), df_train['label'], test_size=0.3, random_state=42)
 
-    print('\n')
-    print(f'Decision Tree {hz}hz')
-    accuracy, f1, precision, recall, dt = train_decision_tree(X_train, X_test, y_train, y_test, hz=hz, direc=MODELS)
+    results = run_training(
+                    X_train, X_test, y_train, y_test,
+                    stage='baseline',
+                    dataset='base',
+                    hz=hz,
+                    collect_time=True,
+                    is_save_model=True
+                    )
 
-    test_data = [X_train.iloc[0]]
-    dt_time = get_ipython().run_line_magic('timeit', '-o dt.predict(test_data)')
+    res[hz] = results
 
-    collect_metrics['decision_tree'][hz] = {
-        'accuracy':accuracy,
-        'f1':f1,
-        'precision':precision,
-        'recall':recall,
-        'time':dt_time.timings
-    }
-    print('\n')
+# %% [markdown]
+# ## Plot baseline model accuracies
 
-    print(f'Random Forest {hz}hz')
-    accuracy, f1, precision, recall, rfc = train_random_forest(X_train, X_test, y_train, y_test, hz=hz, direc=MODELS)
+# %%
+res_df = pd.DataFrame(res)
+res_df_acc = res_df.applymap(lambda x: x['accuracy'])
+res_df_acc = res_df_acc.T.reset_index()
+res_df_acc = res_df_acc.melt(id_vars=['index']).rename(columns={'variable':'model','value':'accuracy','index':'hz'})
 
-    test_data = [X_train.iloc[0]]
-    rfc_time = get_ipython().run_line_magic('timeit', '-o rfc.predict(test_data)')
 
-    collect_metrics['random_forest'][hz] = {
-        'accuracy':accuracy,
-        'f1':f1,
-        'precision':precision,
-        'recall':recall,
-        'time': rfc_time.timings
-    }
-    print('\n')
+# %%
+plt.figure(figsize=(10,5))
+sns.pointplot(data=res_df_acc, x='hz', y='accuracy', hue='model', marker='o')
+plt.title('\nBaseline data model accuracy\n');
+plt.ylabel('\nAccuracy')
+plt.xlabel('Sampling rate [Hz]')
+plt.tight_layout()
 
-    print(f'SVC {hz}hz')
-    accuracy, f1, precision, recall, svc = train_svc(X_train, X_test, y_train, y_test, hz=hz, direc=MODELS)
+# %% [markdown]
+# ## Compare inference times
 
-    test_data = [X_train.iloc[0]]
-    svc_time = get_ipython().run_line_magic('timeit', '-o svc.predict(test_data)')
+# %%
+from models.baseline.base.decision_tree import decision_tree_10hz, decision_tree_20hz, decision_tree_25hz, decision_tree_50hz, decision_tree_100hz
+from models.baseline.base.random_forest import random_forest_10hz, random_forest_20hz, random_forest_25hz, random_forest_50hz, random_forest_100hz
+from models.baseline.base.svc import svc_10hz, svc_20hz, svc_25hz, svc_50hz, svc_100hz
+from models.baseline.base.logistic_regression import logistic_regression_10hz, logistic_regression_20hz, logistic_regression_25hz, logistic_regression_50hz, logistic_regression_100hz
 
-    collect_metrics['svc'][hz] = {
-        'accuracy':accuracy,
-        'f1':f1,
-        'precision':precision,
-        'recall':recall,
-        'time':svc_time.timings
-    }
-    print('\n')
-    
-    print(f'Logistic regression {hz}hz')
-    accuracy, f1, precision, recall, lr = train_logistic_regression(X_train, X_test, y_train, y_test, hz=hz, direc=MODELS)
+# %% [markdown]
+# #### Setup test data
 
-    test_data = [X_train.iloc[0]]
-    lr_time = get_ipython().run_line_magic('timeit', '-o lr.predict(test_data)')
+# %%
+test_data_10hz = pd.read_csv('data/transformed/20210529_v2_data_all_10hz.csv').reset_index(drop=True).drop(['label','shift'], axis=1).loc[0]
+test_data_20hz = pd.read_csv('data/transformed/20210529_v2_data_all_20hz.csv').reset_index(drop=True).drop(['label','shift'], axis=1).loc[0]
+test_data_25hz = pd.read_csv('data/transformed/20210529_v2_data_all_25hz.csv').reset_index(drop=True).drop(['label','shift'], axis=1).loc[0]
+test_data_50hz = pd.read_csv('data/transformed/20210529_v2_data_all_50hz.csv').reset_index(drop=True).drop(['label','shift'], axis=1).loc[0]
+test_data_100hz = pd.read_csv('data/transformed/20210529_v2_data_all_100hz.csv').reset_index(drop=True).drop(['label','shift'], axis=1).loc[0]
 
-    collect_metrics['logistic_regression'][hz] = {
-        'accuracy':accuracy,
-        'f1':f1,
-        'precision':precision,
-        'recall':recall,
-        'time':lr_time.timings
-    }
-    print('-' * 50)
+
+# %%
+test_data_10hz.shape, test_data_20hz.shape, test_data_25hz.shape, test_data_50hz.shape, test_data_100hz.shape
+
+
+# %%
+from statistics import mean
+
+m2c_time_test_setup = {
+    'decision_tree': [
+        (decision_tree_10hz, test_data_10hz, 10),
+        (decision_tree_20hz, test_data_20hz, 20),
+        (decision_tree_25hz, test_data_25hz, 25),
+        (decision_tree_50hz, test_data_50hz, 50),
+        (decision_tree_100hz, test_data_100hz, 100)
+    ],
+    'random_forest': [
+        (random_forest_10hz, test_data_10hz, 10),
+        (random_forest_20hz, test_data_20hz, 20),
+        (random_forest_25hz, test_data_25hz, 25),
+        (random_forest_50hz, test_data_50hz, 50),
+        (random_forest_100hz, test_data_100hz, 100)
+    ],
+    'svc': [
+        (svc_10hz, test_data_10hz, 10),
+        (svc_20hz, test_data_20hz, 20),
+        (svc_25hz, test_data_25hz, 25),
+        (svc_50hz, test_data_50hz, 50),
+        (svc_100hz, test_data_100hz, 100)
+    ],
+    'logistic_regression': [
+        (logistic_regression_10hz, test_data_10hz, 10),
+        (logistic_regression_20hz, test_data_20hz, 20),
+        (logistic_regression_25hz, test_data_25hz, 25),
+        (logistic_regression_50hz, test_data_50hz, 50),
+        (logistic_regression_100hz, test_data_100hz, 100)
+    ]
+}
+
+m2c_time_data = {}            
+
+for k, v in m2c_time_test_setup.items():
+    m2c_time_data[k] = {}
+    for t_item in v:
+        model = t_item[0]
+        test_data = t_item[1]
+        freq = t_item[2]
+        res_time = get_ipython().run_line_magic('timeit', '-o model.score(test_data)')
+
+        m2c_time_data[k][freq] = mean(res_time.timings)
+
+
+# %%
+m2c_time_df = pd.DataFrame(m2c_time_data)
+skl_time_df = res_df.applymap(lambda x: mean(x['time'])).T
+
+
+# %%
+m2c_time_df['framework'] = 'pure-python'
+skl_time_df['framework'] = 'scikit'
+inf_time_df = pd.concat([m2c_time_df, skl_time_df]).reset_index().rename(columns={'index':'hz'})
+
+
+# %%
+import matplotlib.ticker as tick
+
+fig, ax = plt.subplots(ncols=4, sharey=True, figsize=(15,7))
+plt.title('Inference times')
+
+sns.pointplot(x='hz', y='decision_tree', hue='framework', data=inf_time_df[['decision_tree','framework','hz']], ax=ax[0])
+sns.pointplot(x='hz', y='random_forest', hue='framework', data=inf_time_df[['random_forest','framework','hz']], ax=ax[1])
+sns.pointplot(x='hz', y='svc', hue='framework', data=inf_time_df[['svc','framework','hz']], ax=ax[2])
+sns.pointplot(x='hz', y='logistic_regression', hue='framework', data=inf_time_df[['logistic_regression','framework','hz']], ax=ax[3])
+
+ax[0].title.set_text('\nDecision Tree\n')
+ax[0].set_ylabel('Inference time [ms]')
+ax[0].set_xticklabels(['66\n(10 Hz)', '126\n(20 Hz)', '156\n(25 Hz)', '306\n(50 Hz)', '606\n(100 Hz)'])
+ax[0].set_xlabel('\nNo. of inputs')
+
+ax[1].title.set_text('\nRandom Forest Classifier\n')
+ax[1].set_ylabel('')
+ax[1].set_xticklabels(['66\n(10 Hz)', '126\n(20 Hz)', '156\n(25 Hz)', '306\n(50 Hz)', '606\n(100 Hz)'])
+ax[1].set_xlabel('\nNo. of inputs')
+
+ax[2].title.set_text('\nSVC\n')
+ax[2].set_ylabel('')
+ax[2].set_xticklabels(['66\n(10 Hz)', '126\n(20 Hz)', '156\n(25 Hz)', '306\n(50 Hz)', '606\n(100 Hz)'])
+ax[2].set_xlabel('\nNo. of inputs')
+
+ax[3].title.set_text('\nLogistic Regression\n')
+ax[3].set_ylabel('')
+ax[3].set_xticklabels(['66\n(10 Hz)', '126\n(20 Hz)', '156\n(25 Hz)', '306\n(50 Hz)', '606\n(100 Hz)'])
+ax[3].set_xlabel('\nNo. of inputs')
+
+plt.gca().yaxis.set_major_formatter(tick.FuncFormatter(lambda x, post: f'{(x * 1000)}'))
+plt.tight_layout()
 
 
 # %%
