@@ -52,86 +52,6 @@ def save_model(classifier, stage, dataset, model_type, hz):
 
 
 # %%
-def transform_data_for_inference(df):
-    '''
-        Transoforms dataset for inference.
-        ms,acc,gyro -> acc_x_0, gyro_x_0, acc_x_10, gyro_x_10, .... acc_x_n, gyro_x_n
-    '''
-
-    df_list=[]
-
-    for time in df.index:
-        _df = pd.DataFrame(df.loc[time]).T
-        # _df.drop('ms',axis=1, inplace=True)
-        df_list.append(_df.add_suffix(f'_{str(int(time))}').reset_index(drop=True))
-
-    return pd.concat(df_list, axis=1)
-
-
-def get_filter_string(start, step):
-    '''
-        Creates a string to filter dataset for defined timetimestamps.
-        To be used with df.filter(regex='<string returned from this functions>')
-        Example: 0|50|100
-    '''
-
-    keep = np.arange(start, start+1+1000, step=int(step))
-    return '|'.join(map(str, keep.astype(int)))
-
-
-def line_color(inf_result):
-    '''Returns color associated with inference result.'''
-    colors = {
-        1:'blue',
-        2:'red',
-        3:'green'
-    }
-    return colors[inf_result]
-
-
-def downsample_df(df, period):
-    '''Downsamples dataset.'''
-
-    last_index_ms = df.index[-1]
-    keep = np.arange(last_index_ms, step=period)
-
-    return df.loc[keep]
-
-
-def run_inference(df, model, start, step):
-    '''Runs inference.'''
-    regex_filter = get_filter_string(start=start, step=step)
-    data = list(df.filter(regex=f'_({regex_filter})$').loc[0])
-    return model.score(data)
-
-def calculate_error(res, move_type):
-    '''
-        Calculates inference error rate in validation data.
-    '''
-
-    error_setup = {
-        'circle': {'err_1':1,'err_2':2},
-        'x':{'err_1':2, 'err_2':3},
-        'y':{'err_1':1,'err_2':3}
-    }
-
-    err_1 = error_setup[move_type]['err_1']
-    err_2 = error_setup[move_type]['err_2']
-
-    val_counts = res['result'].value_counts().drop(0) # dropping `no movement`
-    val_counts_keys = val_counts.keys()
-
-    total_wrong = 0
-
-    if err_1 in val_counts_keys:
-        total_wrong += val_counts[err_1]
-    if err_2 in val_counts_keys:
-        total_wrong += val_counts[err_2]
-    
-    return (total_wrong / val_counts.sum()) * 100
-
-
-# %%
 def trainer_helper(clf, X_train, X_test, y_train, y_test):
     clf.fit(X_train, y_train)
 
@@ -147,7 +67,8 @@ def trainer_helper(clf, X_train, X_test, y_train, y_test):
 
 # %%
 def get_df_base(df):
-    return df[(df['shift'] == 0)]
+    df = df[(df['shift'] == 0)]
+    return df.dropna(axis=0)
 
 def get_df_center(df):
     df = df[
@@ -156,9 +77,9 @@ def get_df_center(df):
             | ((df['label'] == 3) & (df['shift'] == 0))
             | ((df['label'] == 0) & (df['shift'] == 0))
         ]
-    return df
+    return df.dropna(axis=0)
 
-def get_df_shift_aug(df):
+def get_df_center_aug(df):
     df = df[
             ((df['label'] == 1) & (df['shift'] <= -15))
             | ((df['label'] == 2) & (df['shift'] <= -15))
@@ -169,7 +90,7 @@ def get_df_shift_aug(df):
             | ((df['label'] == 3) & (df['shift'] == 2))
             | ((df['label'] == 0) & (df['shift'] > 1))
         ]
-    return df
+    return df.dropna(axis=0)
 
 def get_df_end(df):
     df = df[
@@ -178,7 +99,7 @@ def get_df_end(df):
             | ((df['label'] == 3) & (df['shift'] == 0))
             | ((df['label'] == 0) & (df['shift'] == 0))
         ]
-    return df
+    return df.dropna(axis=0)
 
 
 # %%
@@ -252,15 +173,15 @@ for hz in [10,20,25,50,100]:
 
     res[hz] = results
 
-# %% [markdown]
-# ## Plot baseline model accuracies
 
 # %%
 res_df = pd.DataFrame(res)
+res_df_acc.to_csv('output/baseline_base_dataset_results.csv', index=False)
+
 res_df_acc = res_df.applymap(lambda x: x['accuracy'])
 res_df_acc = res_df_acc.T.reset_index()
 res_df_acc = res_df_acc.melt(id_vars=['index']).rename(columns={'variable':'model','value':'accuracy','index':'hz'})
-res_df_acc.to_csv('output/baseline_model_accuracy.csv', index=False)
+res_df_acc.to_csv('output/baseline_results/baseline_model_accuracy.csv', index=False)
 
 
 # %%
@@ -271,8 +192,6 @@ plt.ylabel('\nAccuracy')
 plt.xlabel('Sampling rate [Hz]')
 plt.tight_layout()
 
-# %% [markdown]
-# ## Compare inference times
 
 # %%
 from models.baseline.base.decision_tree import decision_tree_10hz, decision_tree_20hz, decision_tree_25hz, decision_tree_50hz, decision_tree_100hz
@@ -280,8 +199,6 @@ from models.baseline.base.random_forest import random_forest_10hz, random_forest
 from models.baseline.base.svc import svc_10hz, svc_20hz, svc_25hz, svc_50hz, svc_100hz
 from models.baseline.base.logistic_regression import logistic_regression_10hz, logistic_regression_20hz, logistic_regression_25hz, logistic_regression_50hz, logistic_regression_100hz
 
-# %% [markdown]
-# #### Setup test data
 
 # %%
 test_data_10hz = pd.read_csv('data/transformed/20210529_v2_data_all_10hz.csv').reset_index(drop=True).drop(['label','shift'], axis=1).loc[0]
@@ -351,7 +268,7 @@ skl_time_df = res_df.applymap(lambda x: mean(x['time'])).T
 m2c_time_df['framework'] = 'pure-python'
 skl_time_df['framework'] = 'scikit'
 inf_time_df = pd.concat([m2c_time_df, skl_time_df]).reset_index().rename(columns={'index':'hz'})
-inf_time_df.to_csv('output/baseline_model_inference_time.csv', index=False)
+inf_time_df.to_csv('output/baseline_results/baseline_model_inference_time.csv', index=False)
 
 
 # %%
@@ -389,81 +306,144 @@ plt.gca().yaxis.set_major_formatter(tick.FuncFormatter(lambda x, post: f'{(x * 1
 plt.tight_layout()
 
 # %% [markdown]
-# ## Model validation
+# ## Train data on centered dataset
 
 # %%
-from models.baseline.base.decision_tree import decision_tree_100hz, decision_tree_50hz, decision_tree_25hz, decision_tree_20hz, decision_tree_10hz
-from models.baseline.base.random_forest import random_forest_100hz, random_forest_50hz, random_forest_25hz, random_forest_20hz, random_forest_10hz
+res = {}
 
-model_setups = [
-    (decision_tree_100hz, 100, (0,0), 'decision_tree'),
-    (decision_tree_50hz, 50, (0,1), 'decision_tree'),
-    (decision_tree_25hz, 25, (0,2), 'decision_tree'),
-    (decision_tree_20hz, 20, (0,3), 'decision_tree'),
-    (decision_tree_10hz, 10, (0,4), 'decision_tree'),
-    (random_forest_100hz, 100, (1,0), 'random_forest'),
-    (random_forest_50hz, 50, (1,1), 'random_forest'),
-    (random_forest_25hz, 25, (1,2), 'random_forest'),
-    (random_forest_20hz, 20, (1,3), 'random_forest'),
-    (random_forest_10hz, 10, (1,4), 'random_forest')
-]
+DATASET='centered'
+DATASET_FUNC = get_df_center
 
 
-# %%
-validation_results_circle = []
+for hz in [10,20,25,50,100]:
+    print(f'\nTraining on dataset with {hz} Hz')
+    print('*' * 50)
+    print('\n')
+    df = pd.read_csv(f'data/transformed/20210529_v2_data_all_{hz}hz.csv').reset_index(drop=True)
+    
+    df_train = DATASET_FUNC(df)
 
-fig, ax = plt.subplots(ncols=2, nrows=5, sharey=True, sharex=True, figsize=(30,25))
-fig.tight_layout()
+    print('DF Shape', df_train.shape)
+    X_train, X_test, y_train, y_test = train_test_split(df_train.drop(['label','shift'],axis=1), df_train['label'], test_size=0.3, random_state=42)
 
-for setup in model_setups:
-    MODEL = setup[0]
-    FREQ = setup[1]
-    STEP = (1000 / FREQ)
-    COL = setup[2][0]
-    ROW = setup[2][1]
+    results = run_training(
+                    X_train, X_test, y_train, y_test,
+                    stage='baseline',
+                    dataset=DATASET,
+                    hz=hz,
+                    collect_time=False,
+                    is_save_model=True
+                    )
 
-    df_val = pd.read_csv('data/validation/move_circle_20210522_1.csv').set_index('ms')
+    res[hz] = results
 
-    # initialize empty dataset to collect results
-    inf_results = pd.DataFrame([],columns=['start','end','result'])
-
-    # treat dataset 
-    df_downsampled = downsample_df(df_val, STEP) # downsample dataset
-    df_inference = transform_data_for_inference(df_downsampled) # converts dataset to inference format
-
-    # Plot signals
-    ax[ROW][COL].plot(df_downsampled)
-
-    # generate a list of steps    
-    inference_step = list(np.arange(0, df_val.index[-1] + 1 - 1010, step=STEP))
-
-    for st in inference_step:
-        res = np.argmax(run_inference(df_inference, MODEL, st, STEP))
-        inf_results = pd.concat([inf_results, pd.DataFrame([{'start':st,'end':st+1000,'result':res}])], axis=0)
-
-        if res in [1,2,3]:
-            color = line_color(res)
-            ax[ROW][COL].axvline(x=st+500, ymin=0, ymax=0.4, color=color, alpha=0.4)
-
-    # Create Legend
-    blue_patch = mpatches.Patch(color='blue', label='X Movement')
-    red_patch = mpatches.Patch(color='red', label='Y Movement')
-    green_patch = mpatches.Patch(color='green', label='Circle Movement')
-    fig.legend(handles=[blue_patch, red_patch, green_patch])
-
-
-    # get error rate
-    wrong_percentage = calculate_error(inf_results, 'circle')
-
-    validation_results_circle.append({'model':setup[-1], 'hz':setup[1], 'wrong_percentage': wrong_percentage, 'value_counts': inf_results['result'].value_counts()})
+res_df = pd.DataFrame(res)
+res_df.to_csv(f'output/baseline_results/baseline_{DATASET}_dataset_results.csv', index=False)
 
 
 # %%
-res_no_shift_circle_df = pd.DataFrame(res_no_shift_circle)
-sns.pointplot(data=res_no_shift_circle_df, x='hz', y='wrong_percentage', hue='model');
+res = {}
+
+DATASET='centered_aug'
+DATASET_FUNC = get_df_center_aug
+
+
+for hz in [10,20,25,50,100]:
+    print(f'\nTraining on dataset with {hz} Hz')
+    print('*' * 50)
+    print('\n')
+    df = pd.read_csv(f'data/transformed/20210529_v2_data_all_{hz}hz.csv').reset_index(drop=True)
+    
+    df_train = DATASET_FUNC(df)
+
+    print('DF Shape', df_train.shape)
+    X_train, X_test, y_train, y_test = train_test_split(df_train.drop(['label','shift'],axis=1), df_train['label'], test_size=0.3, random_state=42)
+
+    results = run_training(
+                    X_train, X_test, y_train, y_test,
+                    stage='baseline',
+                    dataset=DATASET,
+                    hz=hz,
+                    collect_time=False,
+                    is_save_model=True
+                    )
+
+    res[hz] = results
+
+res_df = pd.DataFrame(res)
+res_df.to_csv(f'output/baseline_results/baseline_{DATASET}_dataset_results.csv', index=False)
 
 
 # %%
+res = {}
 
+DATASET='end'
+DATASET_FUNC = get_df_end
+
+
+for hz in [10,20,25,50,100]:
+    print(f'\nTraining on dataset with {hz} Hz')
+    print('*' * 50)
+    print('\n')
+    df = pd.read_csv(f'data/transformed/20210529_v2_data_all_{hz}hz.csv').reset_index(drop=True)
+    
+    df_train = DATASET_FUNC(df)
+
+    print('DF Shape', df_train.shape)
+    X_train, X_test, y_train, y_test = train_test_split(df_train.drop(['label','shift'],axis=1), df_train['label'], test_size=0.3, random_state=42)
+
+    results = run_training(
+                    X_train, X_test, y_train, y_test,
+                    stage='baseline',
+                    dataset=DATASET,
+                    hz=hz,
+                    collect_time=False,
+                    is_save_model=True
+                    )
+
+    res[hz] = results
+
+res_df = pd.DataFrame(res)
+res_df.to_csv(f'output/baseline_results/baseline_{DATASET}_dataset_results.csv', index=False)
+
+
+# %%
+from imblearn.over_sampling import SMOTEN
+
+res = {}
+
+DATASET='centered_smote'
+DATASET_FUNC = get_df_center
+
+
+for hz in [10,20,25,50,100]:
+    print(f'\nTraining on dataset with {hz} Hz')
+    print('*' * 50)
+    print('\n')
+    df = pd.read_csv(f'data/transformed/20210529_v2_data_all_{hz}hz.csv').reset_index(drop=True)
+    
+    df_train = DATASET_FUNC(df)
+
+
+    print('DF Shape', df_train.shape)
+    X_train, X_test, y_train, y_test = train_test_split(df_train.drop(['label','shift'],axis=1), df_train['label'], test_size=0.3, random_state=42)
+
+
+    over_sampler = SMOTEN(k_neighbors=2, sampling_strategy='not majority', random_state=42)
+    X_train_SMOTE, y_train_SMOTE = over_sampler.fit_resample(X_train, y_train)
+
+    results = run_training(
+                    X_train_SMOTE, X_test, y_train_SMOTE, y_test,
+                    stage='baseline',
+                    dataset=DATASET,
+                    hz=hz,
+                    collect_time=False,
+                    is_save_model=True
+                    )
+
+    res[hz] = results
+
+res_df = pd.DataFrame(res)
+res_df.to_csv(f'output/baseline_results/baseline_{DATASET}_dataset_results.csv', index=False)
 
 
