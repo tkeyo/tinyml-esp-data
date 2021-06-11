@@ -1,0 +1,83 @@
+{
+ "id": "3bef8b43d66d13b3ffb3f841813834bb981f8bbe4081c9a8b338ae832b1bb6b6",
+ "created": "2021-06-11T15:45:43.742024899Z",
+ "params": {
+  "data_set": "baseline",
+  "dataset_test_size": 0.35,
+  "feature_count": 6,
+  "features": [
+   "acc_x",
+   "acc_y",
+   "acc_z",
+   "gyro_x",
+   "gyro_y",
+   "gyro_z"
+  ],
+  "hz": 50,
+  "model": "random_forest",
+  "n_estimators": 5,
+  "other_params": "default",
+  "quantization": null
+ },
+ "host": "",
+ "user": "tk",
+ "config": {
+  "repository": "file:///Users/tk/projects/tinyml-esp32-data/.keepsake",
+  "storage": ""
+ },
+ "command": "/Users/tk/opt/miniconda3/envs/tinyml/lib/python3.8/site-packages/ipykernel_launcher.py -f /Users/tk/Library/Jupyter/runtime/kernel-dba4cf8a-dddc-479c-9340-bb00ce08d4cb.json",
+ "path": "",
+ "python_version": "3.8.3",
+ "python_packages": {
+  "appnope": "0.1.2",
+  "backcall": "0.2.0",
+  "cffi": "1.14.5",
+  "colorama": "0.4.4",
+  "cycler": "0.10.0",
+  "decorator": "4.4.2",
+  "ipykernel": "5.3.4",
+  "ipywidgets": "7.6.3",
+  "jedi": "0.17.0",
+  "joblib": "1.0.1",
+  "keepsake": "0.4.2",
+  "kiwisolver": "1.3.1",
+  "m2cgen": "0.9.0",
+  "matplotlib": "3.3.4",
+  "numpy": "1.20.1",
+  "pandas": "1.2.3",
+  "parso": "0.8.1",
+  "pexpect": "4.8.0",
+  "pickleshare": "0.7.5",
+  "psutil": "5.8.0",
+  "ptyprocess": "0.7.0",
+  "pygments": "2.8.1",
+  "pyparsing": "2.4.7",
+  "pytz": "2021.1",
+  "scipy": "1.6.1",
+  "seaborn": "0.10.1",
+  "six": "1.15.0",
+  "statsmodels": "0.12.2",
+  "tornado": "6.1",
+  "traitlets": "5.0.5",
+  "wcwidth": "0.2.5"
+ },
+ "checkpoints": [
+  {
+   "id": "84260b645eab35d02c06030469be3d0511975d628cdce700ace11785a5c155de",
+   "created": "2021-06-11T15:45:43.761318922Z",
+   "metrics": {
+    "accurracy": 1,
+    "f1": 1,
+    "precision": 1,
+    "recall": 1
+   },
+   "step": 0,
+   "path": "",
+   "primary_metric": {
+    "name": "recall",
+    "goal": "maximize"
+   }
+  }
+ ],
+ "keepsake_version": "0.4.2"
+}
