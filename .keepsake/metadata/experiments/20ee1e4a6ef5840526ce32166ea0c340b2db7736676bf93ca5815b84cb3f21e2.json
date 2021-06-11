@@ -1,21 +1,25 @@
 {
- "id": "924ffc4f3d65933139311dbbab431e6e11ae0fda683972df43ad1f5f9e7c8140",
- "created": "2021-06-11T15:48:25.543135881Z",
+ "id": "20ee1e4a6ef5840526ce32166ea0c340b2db7736676bf93ca5815b84cb3f21e2",
+ "created": "2021-06-11T16:02:47.745301962Z",
  "params": {
-  "data_set": "baseline",
+  "accuracy": 1,
+  "data_set": "base",
   "dataset_test_size": 0.35,
+  "f1": 1,
   "feature_count": 4,
   "features": [
    "acc_x",
    "acc_y",
    "acc_z",
-   "gyro_y"
+   "gyro_z"
   ],
   "hz": 25,
   "model": "decision_tree",
-  "n_estimators": 6,
+  "n_estimators": 5,
   "other_params": "default",
-  "quantization": null
+  "precision": 1,
+  "quantization": null,
+  "recall": 1
  },
  "host": "",
  "user": "tk",
@@ -61,8 +65,8 @@
  },
  "checkpoints": [
   {
-   "id": "4957576e64ef03fdeb15aab8e42e0ab44e9d9479b7e58d762bbbc79abcb4de65",
-   "created": "2021-06-11T15:48:25.553368092Z",
+   "id": "1c7eb3bee1166aeac39d08a20674a9040950eb90de9f15dd4e7676d1181084ea",
+   "created": "2021-06-11T16:02:47.754236937Z",
    "metrics": {
     "accurracy": 1,
     "f1": 1,

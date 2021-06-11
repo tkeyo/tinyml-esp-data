@@ -1,9 +1,11 @@
 {
- "id": "ad2b35e67b396b52190e4b8a12c31aabdbb27a2114c256132ca74b1eba7bdaaf",
- "created": "2021-06-11T15:45:35.39626193Z",
+ "id": "5ee09333ec3fa73d1dc2b113b09d8a4208e53259a51c3153e918a6a370c6d08c",
+ "created": "2021-06-11T16:02:29.878801107Z",
  "params": {
-  "data_set": "baseline",
+  "accuracy": 1,
+  "data_set": "base",
   "dataset_test_size": 0.35,
+  "f1": 1,
   "feature_count": 5,
   "features": [
    "acc_x",
@@ -14,9 +16,11 @@
   ],
   "hz": 20,
   "model": "random_forest",
-  "n_estimators": 5,
+  "n_estimators": 4,
   "other_params": "default",
-  "quantization": null
+  "precision": 1,
+  "quantization": null,
+  "recall": 1
  },
  "host": "",
  "user": "tk",
@@ -40,7 +44,6 @@
   "joblib": "1.0.1",
   "keepsake": "0.4.2",
   "kiwisolver": "1.3.1",
-  "m2cgen": "0.9.0",
   "matplotlib": "3.3.4",
   "numpy": "1.20.1",
   "pandas": "1.2.3",
@@ -62,8 +65,8 @@
  },
  "checkpoints": [
   {
-   "id": "2146cf6c40cde227cd0e1e37a6a4cbe1d7b788aa97f190ddc2af770363c9d06f",
-   "created": "2021-06-11T15:45:35.41277194Z",
+   "id": "6b643295239b79180a100fefbe0819921538d26f9b3162faeeebaaded45570de",
+   "created": "2021-06-11T16:02:29.90429306Z",
    "metrics": {
     "accurracy": 1,
     "f1": 1,
