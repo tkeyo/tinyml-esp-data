@@ -94,6 +94,13 @@ def run_validation(model_setup, dataset_path, dataset, is_plot=False, is_save_re
     
     if is_plot:
         fig, ax = plt.subplots(ncols=2, nrows=5, sharey=True, sharex=True, figsize=(30,25))
+        
+        # Create Legend
+        blue_patch = mpatches.Patch(color='blue', label='X Movement')
+        red_patch = mpatches.Patch(color='red', label='Y Movement')
+        green_patch = mpatches.Patch(color='green', label='Circle Movement')
+        fig.legend(handles=[blue_patch, red_patch, green_patch])
+        
         fig.tight_layout()
 
     for setup in model_setup:
@@ -112,14 +119,6 @@ def run_validation(model_setup, dataset_path, dataset, is_plot=False, is_save_re
         # treat dataset 
         df_downsampled = downsample_df(df_val, STEP) # downsample dataset
         df_inference = transform_data_for_inference(df_downsampled) # converts dataset to inference format
-
-
-
-            # Create Legend
-            blue_patch = mpatches.Patch(color='blue', label='X Movement')
-            red_patch = mpatches.Patch(color='red', label='Y Movement')
-            green_patch = mpatches.Patch(color='green', label='Circle Movement')
-            fig.legend(handles=[blue_patch, red_patch, green_patch])
 
         # generate a list of steps    
         inference_step = list(np.arange(0, df_val.index[-1] + 1 - 1010, step=STEP))
