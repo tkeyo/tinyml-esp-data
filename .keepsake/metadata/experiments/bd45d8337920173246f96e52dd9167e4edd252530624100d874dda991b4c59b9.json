@@ -1,22 +1,23 @@
 {
- "id": "5ee09333ec3fa73d1dc2b113b09d8a4208e53259a51c3153e918a6a370c6d08c",
- "created": "2021-06-11T16:02:29.878801107Z",
+ "id": "bd45d8337920173246f96e52dd9167e4edd252530624100d874dda991b4c59b9",
+ "created": "2021-06-11T16:16:31.482640982Z",
  "params": {
   "accuracy": 1,
   "data_set": "base",
   "dataset_test_size": 0.35,
   "f1": 1,
-  "feature_count": 5,
+  "feature_count": 6,
   "features": [
    "acc_x",
    "acc_y",
    "acc_z",
    "gyro_x",
-   "gyro_y"
+   "gyro_y",
+   "gyro_z"
   ],
-  "hz": 20,
+  "hz": 50,
   "model": "random_forest",
-  "n_estimators": 4,
+  "n_estimators": 5,
   "other_params": "default",
   "precision": 1,
   "quantization": null,
@@ -44,6 +45,7 @@
   "joblib": "1.0.1",
   "keepsake": "0.4.2",
   "kiwisolver": "1.3.1",
+  "m2cgen": "0.9.0",
   "matplotlib": "3.3.4",
   "numpy": "1.20.1",
   "pandas": "1.2.3",
@@ -65,8 +67,8 @@
  },
  "checkpoints": [
   {
-   "id": "6b643295239b79180a100fefbe0819921538d26f9b3162faeeebaaded45570de",
-   "created": "2021-06-11T16:02:29.90429306Z",
+   "id": "ab6ebed51325f65b74c8c0837108984cca5cd037b20ede4095e8b76fd705ac86",
+   "created": "2021-06-11T16:16:31.49941206Z",
    "metrics": {
     "accurracy": 1,
     "f1": 1,

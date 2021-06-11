@@ -1,6 +1,6 @@
 {
- "id": "3705b82c32ead98afba6327b40a8315630694338ff3ead8c24fdd4e800f26185",
- "created": "2021-06-11T16:02:30.950993061Z",
+ "id": "108ab22a6a0bd7ace3b8e3632c9105f3587063be7dd8d11b521b333e3dc6481c",
+ "created": "2021-06-11T16:16:24.33138895Z",
  "params": {
   "accuracy": 1,
   "data_set": "base",
@@ -16,7 +16,7 @@
   ],
   "hz": 20,
   "model": "random_forest",
-  "n_estimators": 5,
+  "n_estimators": 6,
   "other_params": "default",
   "precision": 1,
   "quantization": null,
@@ -66,8 +66,8 @@
  },
  "checkpoints": [
   {
-   "id": "a696a1615082c720178d1f5ff785a01c8b4c7a600d7eebcea560e7ebfe226703",
-   "created": "2021-06-11T16:02:30.965095997Z",
+   "id": "4c4f24815160be6e6dbacd973a5e98c4677e9215dab3e1f851c49b1b54cd5f27",
+   "created": "2021-06-11T16:16:24.344372034Z",
    "metrics": {
     "accurracy": 1,
     "f1": 1,
