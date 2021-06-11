@@ -1,6 +1,6 @@
 {
- "id": "13bfccff6ce324b0da6b99c6519110f9001f170f4af86296502bc237046742c4",
- "created": "2021-06-11T16:16:23.271929979Z",
+ "id": "2c811abdcb363d76004c08323e5e2b4b43424c52ddfcdf1b99cf2cece3c1d9fd",
+ "created": "2021-06-11T16:36:07.63767004Z",
  "params": {
   "accuracy": 1,
   "data_set": "base",
@@ -12,11 +12,11 @@
    "acc_y",
    "acc_z",
    "gyro_x",
-   "gyro_y"
+   "gyro_z"
   ],
   "hz": 20,
   "model": "random_forest",
-  "n_estimators": 5,
+  "n_estimators": 4,
   "other_params": "default",
   "precision": 1,
   "quantization": null,
@@ -66,8 +66,8 @@
  },
  "checkpoints": [
   {
-   "id": "c95b470fd789075a255ef1fe86f99542e1fb3815683e6a6d81055135a83e3112",
-   "created": "2021-06-11T16:16:23.290661097Z",
+   "id": "c84f79ed4cdad74aa1e36f40e23764b2f71c115dd03fd1eae51372b038467134",
+   "created": "2021-06-11T16:36:07.654140949Z",
    "metrics": {
     "accurracy": 1,
     "f1": 1,
@@ -75,7 +75,7 @@
     "recall": 1
    },
    "step": 0,
-   "path": "",
+   "path": "models/optimized/base/random_forest/random_forest_2c811ab.py",
    "primary_metric": {
     "name": "recall",
     "goal": "maximize"

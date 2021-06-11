@@ -50,6 +50,10 @@ def downsample_df(df, period):
     return df.loc[keep]
 
 
+def filter_df_by_signals(df, signals):
+    return df.filter(regex=f'({"|".join(signals)})')
+
+
 def run_inference(df, model, start, step):
     '''Runs inference.'''
     regex_filter = get_filter_string(start=start, step=step)

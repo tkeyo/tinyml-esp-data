@@ -1,6 +1,6 @@
 {
- "id": "76a01f4fe2760e9fb8f5c0a682924678fd27164b4b212eb90b686e74fb94d05c",
- "created": "2021-06-11T16:16:40.109860897Z",
+ "id": "4edbe66c1a0f4a7e52d61b30dd6c1be1e29b524d53dede3ce92aa74dc6e0fbae",
+ "created": "2021-06-11T16:36:17.069444895Z",
  "params": {
   "accuracy": 1,
   "data_set": "base",
@@ -15,7 +15,7 @@
   ],
   "hz": 25,
   "model": "decision_tree",
-  "n_estimators": 5,
+  "n_estimators": null,
   "other_params": "default",
   "precision": 1,
   "quantization": null,
@@ -65,8 +65,8 @@
  },
  "checkpoints": [
   {
-   "id": "1387cfe49d96dc16b37bd2b6dc6cd1c75c0bc249babde55dd57a6f74fbf4715a",
-   "created": "2021-06-11T16:16:40.119680882Z",
+   "id": "55f4a25d700ba8bf06afcaea3724f64630cbdb2ba57c23b15aa055bb1eab5534",
+   "created": "2021-06-11T16:36:17.079246998Z",
    "metrics": {
     "accurracy": 1,
     "f1": 1,
@@ -74,7 +74,7 @@
     "recall": 1
    },
    "step": 0,
-   "path": "",
+   "path": "models/optimized/base/decision_tree/decision_tree_4edbe66.py",
    "primary_metric": {
     "name": "recall",
     "goal": "maximize"

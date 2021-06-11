@@ -1,6 +1,6 @@
 {
- "id": "6eb4b55bc88a320c68967d6d7b1b6e6c615db0992bdd81746d0710abdf550bd8",
- "created": "2021-06-11T16:16:38.009593964Z",
+ "id": "30462fd2ace1bf59670a6bedba5e2d73077aa9d2e11be8a465a95b48c0ed0b7b",
+ "created": "2021-06-11T16:36:14.962589025Z",
  "params": {
   "accuracy": 1,
   "data_set": "base",
@@ -11,11 +11,11 @@
    "acc_x",
    "acc_y",
    "acc_z",
-   "gyro_y"
+   "gyro_x"
   ],
   "hz": 25,
   "model": "decision_tree",
-  "n_estimators": 6,
+  "n_estimators": null,
   "other_params": "default",
   "precision": 1,
   "quantization": null,
@@ -65,8 +65,8 @@
  },
  "checkpoints": [
   {
-   "id": "35dfca7b2e946bccfbf86c0a317f5da00e548302d3386bbab162f5c91c3cdf95",
-   "created": "2021-06-11T16:16:38.018728018Z",
+   "id": "eafbd060e0cb802891662e6f7861e3864e03cc7567230cb8cd405e553a181674",
+   "created": "2021-06-11T16:36:14.971193075Z",
    "metrics": {
     "accurracy": 1,
     "f1": 1,
@@ -74,7 +74,7 @@
     "recall": 1
    },
    "step": 0,
-   "path": "",
+   "path": "models/optimized/base/decision_tree/decision_tree_30462fd.py",
    "primary_metric": {
     "name": "recall",
     "goal": "maximize"

@@ -1,25 +1,27 @@
 {
- "id": "b3ffc1f9ab50fb0720362a941baa78c359c091d8bb237ac02535f0331ff24da2",
- "created": "2021-06-11T16:16:41.154905081Z",
+ "id": "b159d8339c38a842d02649f3de43d701d881cae53f7126a37e1e24abe5c19446",
+ "created": "2021-06-11T16:36:09.159699917Z",
  "params": {
-  "accuracy": 1,
+  "accuracy": 0.9875,
   "data_set": "base",
   "dataset_test_size": 0.35,
-  "f1": 1,
-  "feature_count": 4,
+  "f1": 0.9880893300248139,
+  "feature_count": 6,
   "features": [
    "acc_x",
    "acc_y",
    "acc_z",
+   "gyro_x",
+   "gyro_y",
    "gyro_z"
   ],
   "hz": 25,
-  "model": "decision_tree",
-  "n_estimators": 6,
+  "model": "random_forest",
+  "n_estimators": 5,
   "other_params": "default",
-  "precision": 1,
+  "precision": 0.984375,
   "quantization": null,
-  "recall": 1
+  "recall": 0.9924242424242424
  },
  "host": "",
  "user": "tk",
@@ -65,16 +67,16 @@
  },
  "checkpoints": [
   {
-   "id": "a410ab0513cb9432fc9936e8ac7c36442980c447e5d7abe05cea9798f45a1d8f",
-   "created": "2021-06-11T16:16:41.164402962Z",
+   "id": "4327f1777a5617c6e60a6e54be3b9dbc124f255049e6f205b8cf0061ca5cae33",
+   "created": "2021-06-11T16:36:09.176839113Z",
    "metrics": {
-    "accurracy": 1,
-    "f1": 1,
-    "precision": 1,
-    "recall": 1
+    "accurracy": 0.9875,
+    "f1": 0.9880893300248139,
+    "precision": 0.984375,
+    "recall": 0.9924242424242424
    },
    "step": 0,
-   "path": "",
+   "path": "models/optimized/base/random_forest/random_forest_b159d83.py",
    "primary_metric": {
     "name": "recall",
     "goal": "maximize"

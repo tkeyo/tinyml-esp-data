@@ -1,6 +1,6 @@
 {
- "id": "b3dfc462762dfa0adde5c7ea40d794233d3d4212cb2a1c4ca998c4b4444cccc6",
- "created": "2021-06-11T16:16:25.398884058Z",
+ "id": "78ad688d570ae4ea82282ee1aaf4ad22317627d14843f21651f441671a07320f",
+ "created": "2021-06-11T16:36:04.393606901Z",
  "params": {
   "accuracy": 1,
   "data_set": "base",
@@ -12,7 +12,7 @@
    "acc_y",
    "acc_z",
    "gyro_x",
-   "gyro_z"
+   "gyro_y"
   ],
   "hz": 20,
   "model": "random_forest",
@@ -44,7 +44,6 @@
   "joblib": "1.0.1",
   "keepsake": "0.4.2",
   "kiwisolver": "1.3.1",
-  "m2cgen": "0.9.0",
   "matplotlib": "3.3.4",
   "numpy": "1.20.1",
   "pandas": "1.2.3",
@@ -66,8 +65,8 @@
  },
  "checkpoints": [
   {
-   "id": "cbe53bdb8c8581f061f4fc4a8d6615cb9ff85c118d2714fc18af853075ae015d",
-   "created": "2021-06-11T16:16:25.413427114Z",
+   "id": "cf9d863ccd0cc459a0ff4da7cf33627c64d65e56ea5353c8395474e1f8281762",
+   "created": "2021-06-11T16:36:04.447483063Z",
    "metrics": {
     "accurracy": 1,
     "f1": 1,
@@ -75,7 +74,7 @@
     "recall": 1
    },
    "step": 0,
-   "path": "",
+   "path": "models/optimized/base/random_forest/random_forest_78ad688.py",
    "primary_metric": {
     "name": "recall",
     "goal": "maximize"
