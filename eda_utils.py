@@ -1,4 +1,6 @@
 import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 
 def filter_dataset_by_label(df: pd.DataFrame, label: int) -> pd.DataFrame:
