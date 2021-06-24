@@ -51,6 +51,7 @@ def downsample_df(df, period):
 
 
 def filter_df_by_signals(df, signals):
+    '''Filter dataset byt signal'''
     return df.filter(regex=f'({"|".join(signals)})')
 
 
@@ -62,9 +63,7 @@ def run_inference(df, model, start, step):
 
 
 def calculate_error(res, move_type):
-    '''
-        Calculates inference error rate in validation data.
-    '''
+    '''Calculates inference error rate in validation data.'''
 
     error_setup = {
         'circle': {'err_1':1,'err_2':2},
@@ -89,11 +88,13 @@ def calculate_error(res, move_type):
 
 
 def get_move_from_path(s):
+    '''Gets movement type from string path.'''
     import re
     return re.findall(r'_(x|circle|y)_', s)[0]
 
 
 def run_validation(model_setup, dataset_path, dataset, is_plot=False, is_save_results=True):
+    '''Plots validation results.'''
     validation_results = []
     
     if is_plot:
